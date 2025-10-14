@@ -239,3 +239,10 @@ label {
     padding: 11px 9px;
   }
 }
+
+/* Home Page Feature Cards */
+.feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  border-color: var(--brand-blue);
+}
