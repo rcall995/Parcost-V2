@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
+import Home from "./Home";
 import AuthPage from "./AuthPage";
 import Dashboard from "./Dashboard";
 import StartCount from "./StartCount";
@@ -19,7 +20,7 @@ import AssignItemsToLocations from "./AssignItemsToLocations";
 import './styles.css';
 
 export default function App() {
-  const [page, setPage] = useState("dashboard");
+  const [page, setPage] = useState("home");
   const [sessionId, setSessionId] = useState(null);
   const [user, setUser] = useState(null);
   const [firstName, setFirstName] = useState("");
@@ -73,7 +74,7 @@ export default function App() {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (!session) setPage("dashboard");
+      if (!session) setPage("home");
     });
     return () => {
       ignore = true;
@@ -97,11 +98,26 @@ export default function App() {
   async function handleLogout() {
     await supabase.auth.signOut();
     setUser(null);
-    setPage("dashboard");
+    setPage("home");
   }
 
   if (loading) return <div>Loading...</div>;
-  if (!user) return <AuthPage onAuth={() => window.location.reload()} />;
+  
+  // Home page - accessible without authentication
+  if (page === "home") {
+    return <Home onNavigate={setPage} />;
+  }
+  
+  // Auth page - for login/signup
+  if (page === "auth") {
+    return <AuthPage onAuth={() => window.location.reload()} />;
+  }
+  
+  // If user is not authenticated and trying to access protected pages, redirect to home
+  if (!user) {
+    setPage("home");
+    return <Home onNavigate={setPage} />;
+  }
   
   // Logic to handle navigation for the single open session
   const activeSessionId = sessionId || activeSession;
