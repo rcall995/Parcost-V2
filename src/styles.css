@@ -1,0 +1,241 @@
+:root {
+  /* Existing Variables */
+  --brand-blue: #001cff;
+  --brand-green: #17c37b;
+  --brand-white: #ffffff;
+  --brand-gray: #fafdff;
+  --font-main: 'Inter', Arial, sans-serif;
+
+  /* --- Minimal Additions --- */
+  --brand-red: #bd3131; 
+  --border-light: #e2e8f0; 
+  --border-mid: #dbe3ec; 
+  --bg-mid: #f4f6fa; 
+  --text-dark: #111;
+  --text-mid: #4a5568; 
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --brand-light-blue: #ebf8ff; /* Added for the selected area button hover */
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--brand-gray);
+  margin: 0;
+  color: var(--text-dark);
+}
+
+h1, h2, h3, h4 {
+  color: var(--brand-blue);
+  margin-bottom: 0.5em;
+}
+
+/* Base button properties from your existing CSS */
+button {
+  background: var(--brand-blue);
+  color: var(--brand-white);
+  border: none;
+  border-radius: 5px;
+  padding: 10px 18px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1); 
+}
+button:hover:not([disabled]) {
+  background: #3a5c88; /* A simple, darker hover state */
+}
+button:active {
+  background: var(--brand-green);
+}
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+input, select, textarea {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 1rem;
+  width: 100%;
+  margin-top: 6px;
+  background: var(--brand-gray);
+  box-sizing: border-box;
+}
+
+label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.5em;
+}
+
+/* --- REUSABLE CLASS DEFINITIONS (Minimum required for other components) --- */
+
+.card-container {
+  max-width: 900px;
+  margin: 40px auto;
+  background: var(--brand-white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  padding: 32px;
+}
+.btn-primary {
+  background: var(--brand-green);
+  color: var(--brand-white);
+  font-weight: 700;
+  box-shadow: 0 1.5px 5px rgba(0, 0, 0, 0.1);
+}
+.btn-primary:hover:not([disabled]) {
+  background: #2f855a;
+}
+.btn-danger {
+  background: var(--brand-red);
+  color: var(--brand-white);
+  border: none;
+  font-weight: 700;
+}
+.btn-danger:hover:not([disabled]) {
+  background: #c53030;
+}
+.back-button {
+  all: unset;
+  display: inline-block;
+  margin: 20px 0;
+  padding: 8px 18px;
+  font-size: 16px;
+  background: var(--brand-blue);
+  color: var(--brand-white);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.18s;
+}
+.back-button:hover {
+  background: #3a5c88;
+}
+.text-danger {
+    color: var(--brand-red);
+    font-weight: 500;
+}
+.text-success {
+    color: var(--brand-green);
+    font-weight: 500;
+}
+.text-center {
+    text-align: center;
+}
+
+/* --- AreaSelector Styles (Specific to the new feature) --- */
+
+.area-selector-container {
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+.area-selector-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap; 
+}
+
+.area-button {
+  all: unset; 
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  flex: 0 0 calc((100% - (12px * 5)) / 6); 
+  min-width: 100px;
+  height: 120px;
+  background: var(--brand-white);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.area-button.selected {
+  border: 2px solid var(--brand-blue);
+  box-shadow: 0 0 10px rgba(45, 70, 105, 0.3);
+  background-color: var(--brand-light-blue); 
+}
+
+.area-button:hover:not(.selected) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.area-icon {
+  font-size: 32px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.area-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-dark);
+}
+
+.progress-bar-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px; 
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--brand-green);
+  transition: width 0.3s ease-out;
+}
+
+.progress-text {
+    position: absolute;
+    bottom: 5px; 
+    right: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--brand-blue);
+    opacity: 0.8;
+}
+
+/* Media Query Adjustment for smaller screens */
+@media (max-width: 768px) {
+  .area-selector-row {
+    gap: 8px;
+  }
+  .area-button {
+    flex: 0 0 calc((100% - (8px * 3)) / 4); 
+    min-width: 80px;
+    height: 100px;
+  }
+}
+
+
+/* --- Existing Media Queries --- */
+@media (max-width: 600px) {
+  body {
+    padding: 0 2vw;
+  }
+  .form-container {
+    max-width: 98vw;
+    padding: 14px 4vw;
+  }
+  button, input, select, textarea {
+    font-size: 1rem;
+    padding: 11px 9px;
+  }
+}
