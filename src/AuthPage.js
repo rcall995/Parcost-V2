@@ -18,17 +18,33 @@ export default function AuthPage({ onAuth }) {
     e.preventDefault();
     setLoading(true);
     setError('');
-    let result;
-    if (isLogin) {
-      result = await supabase.auth.signInWithPassword({ email, password });
-    } else {
-      result = await supabase.auth.signUp({ email, password });
-    }
-    setLoading(false);
-    if (result.error) {
-      setError(result.error.message);
-    } else {
-      onAuth(result.data.user);
+
+    try {
+      let result;
+      console.log('Starting auth request...');
+
+      if (isLogin) {
+        console.log('Attempting login...');
+        result = await supabase.auth.signInWithPassword({ email, password });
+      } else {
+        console.log('Attempting signup...');
+        result = await supabase.auth.signUp({ email, password });
+      }
+
+      console.log('Auth result:', result);
+      setLoading(false);
+
+      if (result.error) {
+        console.error('Auth error:', result.error);
+        setError(result.error.message);
+      } else {
+        console.log('Auth success!');
+        onAuth(result.data.user);
+      }
+    } catch (err) {
+      console.error('Caught error during auth:', err);
+      setLoading(false);
+      setError(`Authentication failed: ${err.message}`);
     }
   }
 
