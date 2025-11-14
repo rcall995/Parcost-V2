@@ -20,63 +20,17 @@ import AssignItemsToLocations from "./AssignItemsToLocations";
 import './styles.css';
 
 export default function App() {
-  const [page, setPage] = useState("home");
+  const [page, setPage] = useState("dashboard"); // Skip auth, go straight to dashboard
   const [sessionId, setSessionId] = useState(null);
-  const [user, setUser] = useState(null);
-  const [firstName, setFirstName] = useState("");
-  const [userRole, setUserRole] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({ id: "temp-user" }); // Mock user
+  const [firstName, setFirstName] = useState("Admin");
+  const [userRole, setUserRole] = useState("owner");
+  const [loading, setLoading] = useState(false); // No loading needed
   const [activeSession, setActiveSession] = useState(null);
 
+  // AUTHENTICATION DISABLED - Direct access to dashboard
   useEffect(() => {
-    let ignore = false;
-    async function checkSession() {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      let fetchedFirstName = "";
-      let fetchedRole = "";
-      let activeSessionData = null;
-
-      if (user) {
-        const { data: profile } = await supabase
-          .from('user_roles')
-          .select('first_name, role')
-          .eq('user_id', user.id)
-          .single();
-        if (profile) {
-          fetchedFirstName = profile.first_name || "";
-          fetchedRole = profile.role || "";
-        }
-        const { data: openSession } = await supabase
-          .from('inventory_sessions')
-          .select('id')
-          .eq('status', 'in_progress')
-          .single();
-        if (openSession) {
-          activeSessionData = openSession.id;
-        }
-      }
-
-      if (!ignore) {
-        setUser(user);
-        setFirstName(fetchedFirstName);
-        setUserRole(fetchedRole);
-        setActiveSession(activeSessionData);
-        setLoading(false);
-        // After login, go to dashboard
-        if (user) setPage("dashboard");
-      }
-    }
-    checkSession();
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (!session) setPage("home");
-      else setPage("dashboard");
-    });
-    return () => {
-      ignore = true;
-      authListener?.subscription.unsubscribe();
-    };
+    // Skip all auth checks
   }, []);
 
   function handleNavigate(newPage, data) {
@@ -91,42 +45,11 @@ export default function App() {
   }
 
   async function handleLogout() {
-    await supabase.auth.signOut();
-    setUser(null);
-    setPage("home");
+    // Logout disabled - refresh page to reset
+    window.location.reload();
   }
 
-  if (loading) return <div>Loading...</div>;
-
-  // Always show Home page unless user is logged in and not going to sign in
-  if (!user) {
-    if (page === "home") {
-      return <Home onNavigate={setPage} />;
-    }
-    if (page === "signin") {
-      return <AuthPage onAuth={() => setPage("dashboard")} />;
-    }
-    if (page === "demo") {
-      // Auto-login with demo credentials
-      async function demoLogin() {
-        setLoading(true);
-        const result = await supabase.auth.signInWithPassword({
-          email: 'demo@parcost.com',
-          password: 'demo123456'
-        });
-        if (result.error) {
-          alert('Demo account not set up yet. Please create an account or contact support.');
-          setPage("home");
-        }
-        setLoading(false);
-      }
-      demoLogin();
-      return <div style={{ padding: 40, textAlign: 'center', fontSize: 18 }}>Loading demo account...</div>;
-    }
-    return <Home onNavigate={setPage} />;
-  }
-
-  // User is logged in
+  // AUTHENTICATION BYPASSED - Direct dashboard access
   if (page === "dashboard")
     return (
       <Dashboard
