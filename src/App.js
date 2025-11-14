@@ -26,9 +26,8 @@ export default function App() {
   const [firstName, setFirstName] = useState("");
   const [userRole, setUserRole] = useState("");
   const [loading, setLoading] = useState(true);
-  const [activeSession, setActiveSession] = useState(null); // <-- NEW STATE
+  const [activeSession, setActiveSession] = useState(null);
 
-  // Check Supabase session and active count on mount
   useEffect(() => {
     let ignore = false;
     async function checkSession() {
@@ -36,10 +35,9 @@ export default function App() {
       const { data: { user } } = await supabase.auth.getUser();
       let fetchedFirstName = "";
       let fetchedRole = "";
-      let activeSessionData = null; // To hold the open session info
+      let activeSessionData = null;
 
       if (user) {
-        // 1. Fetch the user's first_name and role from user_roles table
         const { data: profile } = await supabase
           .from('user_roles')
           .select('first_name, role')
@@ -49,14 +47,11 @@ export default function App() {
           fetchedFirstName = profile.first_name || "";
           fetchedRole = profile.role || "";
         }
-
-        // 2. Check for an active inventory session
         const { data: openSession } = await supabase
           .from('inventory_sessions')
           .select('id')
           .eq('status', 'in_progress')
           .single();
-
         if (openSession) {
           activeSessionData = openSession.id;
         }
@@ -66,15 +61,17 @@ export default function App() {
         setUser(user);
         setFirstName(fetchedFirstName);
         setUserRole(fetchedRole);
-        setActiveSession(activeSessionData); // <-- SET ACTIVE SESSION
+        setActiveSession(activeSessionData);
         setLoading(false);
+        // After login, go to dashboard
+        if (user) setPage("dashboard");
       }
     }
     checkSession();
-    // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (!session) setPage("home");
+      else setPage("dashboard");
     });
     return () => {
       ignore = true;
@@ -82,16 +79,14 @@ export default function App() {
     };
   }, []);
 
-  // Function to navigate and update activeSession status
   function handleNavigate(newPage, data) {
     setPage(newPage);
     if (newPage === "count" && data) setSessionId(data);
     if (newPage !== "count") setSessionId(null);
   }
 
-  // Function called when a session is officially completed/finalized
   function handleSessionFinalized() {
-    setActiveSession(null); // Clear the active session status
+    setActiveSession(null);
     setPage("dashboard");
   }
 
@@ -102,100 +97,44 @@ export default function App() {
   }
 
   if (loading) return <div>Loading...</div>;
-  
-  // Home page - accessible without authentication
-  if (page === "home") {
-    return <Home onNavigate={setPage} />;
-  }
-  
-  // Auth page - for login/signup
-  if (page === "auth") {
-    return <AuthPage onAuth={() => window.location.reload()} />;
-  }
-  
-  // If user is not authenticated and trying to access protected pages, redirect to home
+
+  // Always show Home page unless user is logged in and not going to sign in
   if (!user) {
-    setPage("home");
+    if (page === "home") {
+      return <Home onNavigate={setPage} />;
+    }
+    if (page === "signin") {
+      return <AuthPage onAuth={() => setPage("dashboard")} />;
+    }
+    if (page === "demo") {
+      // Auto-login with demo credentials
+      async function demoLogin() {
+        setLoading(true);
+        const result = await supabase.auth.signInWithPassword({
+          email: 'demo@parcost.com',
+          password: 'demo123456'
+        });
+        if (result.error) {
+          alert('Demo account not set up yet. Please create an account or contact support.');
+          setPage("home");
+        }
+        setLoading(false);
+      }
+      demoLogin();
+      return <div style={{ padding: 40, textAlign: 'center', fontSize: 18 }}>Loading demo account...</div>;
+    }
     return <Home onNavigate={setPage} />;
   }
-  
-  // Logic to handle navigation for the single open session
-  const activeSessionId = sessionId || activeSession;
-  
-  if (page === "start_count" && activeSession) {
-      // If the user tries to start a new count but one is active, redirect to resume
-      setPage("count"); 
-      setSessionId(activeSession);
-  }
 
-  // Business Info Edit page (owner/admin only)
-  if (page === "business_edit") {
-    return (
-      <BusinessSetup
-        ownerId={user.id}
-        onComplete={() => setPage("dashboard")}
-        onBackToDashboard={() => setPage("dashboard")}
-        onLogout={handleLogout}
-      />
-    );
-  }
-  
-  // User Management
-  if (page === "user_management") {
-    return (
-      <UserManagement
-        ownerId={user.id}
-        onBackToAdmin={() => setPage("dashboard")}
-        onLogout={handleLogout}
-      />
-    );
-  }
-
-  // Manage Storage Areas
-  if (page === "manage_storage_areas") {
-    return (
-      <ManageStorageAreas
-        user={user}
-        userName={firstName}
-        onBackToDashboard={() => setPage("dashboard")}
-        onLogout={handleLogout}
-      />
-    );
-  }
-
-  // Shelf to Sheet (Sort Shelf)
-  if (page === "shelf_to_sheet") {
-    return (
-      <SortShelf
-        onBackToDashboard={() => setPage("dashboard")}
-        onLogout={handleLogout}
-        userName={firstName}
-      />
-    );
-  }
-
-  // Assign Items to Locations
-  if (page === "assign_items_to_locations") {
-    return (
-      <AssignItemsToLocations
-        onNavigate={() => setPage("dashboard")}
-      />
-    );
-  }
-
-  // Main Dashboard/Menu (all roles)
+  // User is logged in
   if (page === "dashboard")
     return (
       <Dashboard
         role={userRole}
         firstName={firstName}
-        // Pass the active session status down to the Dashboard
-        activeSessionId={activeSession} 
-        
+        activeSessionId={activeSession}
         onStartCount={() => setPage("start_count")}
-        // If an active session exists, clicking StartCount acts as ResumeCount
-        onResumeCount={() => { setPage("count"); setSessionId(activeSession); }} 
-        
+        onResumeCount={() => { setPage("count"); setSessionId(activeSession); }}
         onViewPrevious={() => setPage("previous_counts")}
         onUsageReport={() => setPage("usage_report")}
         onLogout={handleLogout}
@@ -212,7 +151,52 @@ export default function App() {
       />
     );
 
-  // Inventory Count workflow
+  // ... (rest of your page logic for other pages, unchanged)
+  if (page === "business_edit") {
+    return (
+      <BusinessSetup
+        ownerId={user.id}
+        onComplete={() => setPage("dashboard")}
+        onBackToDashboard={() => setPage("dashboard")}
+        onLogout={handleLogout}
+      />
+    );
+  }
+  if (page === "user_management") {
+    return (
+      <UserManagement
+        ownerId={user.id}
+        onBackToAdmin={() => setPage("dashboard")}
+        onLogout={handleLogout}
+      />
+    );
+  }
+  if (page === "manage_storage_areas") {
+    return (
+      <ManageStorageAreas
+        user={user}
+        userName={firstName}
+        onBackToDashboard={() => setPage("dashboard")}
+        onLogout={handleLogout}
+      />
+    );
+  }
+  if (page === "shelf_to_sheet") {
+    return (
+      <SortShelf
+        onBackToDashboard={() => setPage("dashboard")}
+        onLogout={handleLogout}
+        userName={firstName}
+      />
+    );
+  }
+  if (page === "assign_items_to_locations") {
+    return (
+      <AssignItemsToLocations
+        onNavigate={() => setPage("dashboard")}
+      />
+    );
+  }
   if (page === "start_count")
     return (
       <StartCount
@@ -220,50 +204,37 @@ export default function App() {
         onNavigate={handleNavigate}
         onSessionStarted={(sid) => {
           setSessionId(sid);
-          setActiveSession(sid); // Set the new session as active
+          setActiveSession(sid);
           setPage("count");
         }}
       />
     );
-  
   if (page === "count")
     return (
       <InventoryCount
         user={user}
-        sessionId={activeSessionId}
+        sessionId={sessionId || activeSession}
         onNavigate={handleNavigate}
-        // Pass the finalization handler down
-        onSessionFinalized={handleSessionFinalized} 
+        onSessionFinalized={handleSessionFinalized}
       />
     );
-    
   if (page === "review_submit")
     return (
       <ReviewSubmit
         user={user}
-        sessionId={activeSessionId}
+        sessionId={sessionId || activeSession}
         onNavigate={handleNavigate}
-        onSessionFinalized={handleSessionFinalized} // Use the new centralized handler
+        onSessionFinalized={handleSessionFinalized}
       />
     );
+  if (page === "previous_counts") return <PreviousCounts user={user} onNavigate={handleNavigate} />;
+  if (page === "usage_report") return <UsageReport onNavigate={handleNavigate} />;
+  if (page === "manage_frequencies") return <ManageFrequencies onNavigate={handleNavigate} />;
+  if (page === "manage_items") return <ManageItems onNavigate={handleNavigate} />;
+  if (page === "delete_snapshots") return <DeleteSnapshots onNavigate={handleNavigate} />;
+  if (page === "erase_all_counts") return <EraseAllCounts onNavigate={handleNavigate} />;
 
-  // History/Reporting
-  if (page === "previous_counts")
-    return <PreviousCounts user={user} onNavigate={handleNavigate} />;
-  if (page === "usage_report")
-    return <UsageReport onNavigate={handleNavigate} />;
-
-  // Admin/Owner functions
-  if (page === "manage_frequencies")
-    return <ManageFrequencies onNavigate={handleNavigate} />;
-  if (page === "manage_items")
-    return <ManageItems onNavigate={handleNavigate} />;
-  if (page === "delete_snapshots")
-    return <DeleteSnapshots onNavigate={handleNavigate} />;
-  if (page === "erase_all_counts")
-    return <EraseAllCounts onNavigate={handleNavigate} />;
-
-  // Default fallback
+  // Fallback
   return (
     <div style={{ margin: 40, color: "var(--brand-red)" }}>
       <h2>Page Not Found</h2>

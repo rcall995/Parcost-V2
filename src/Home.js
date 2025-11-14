@@ -39,10 +39,9 @@ export default function Home({ onNavigate }) {
         />
       </div>
 
-      {/* Hero Section with Coming Soon Overlay */}
+      {/* Hero Section */}
       <div
         style={{
-          position: "relative",
           width: "100%",
           maxWidth: 900,
           background: "#fff",
@@ -50,41 +49,9 @@ export default function Home({ onNavigate }) {
           padding: "60px 40px",
           boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
           textAlign: "center",
-          overflow: "hidden",
           marginBottom: 40,
         }}
       >
-        {/* Coming Soon Diagonal Banner */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "none",
-            zIndex: 1,
-          }}
-        >
-          <div
-            style={{
-              fontSize: "clamp(3rem, 10vw, 6rem)",
-              fontWeight: 900,
-              color: BRAND_GREEN,
-              opacity: 0.15,
-              transform: "rotate(-35deg)",
-              whiteSpace: "nowrap",
-              letterSpacing: "0.05em",
-              textTransform: "uppercase",
-            }}
-          >
-            Coming Soon
-          </div>
-        </div>
-
         {/* Hero Text */}
         <h1
           style={{
@@ -93,8 +60,6 @@ export default function Home({ onNavigate }) {
             color: BRAND_BLUE,
             marginBottom: 20,
             lineHeight: 1.2,
-            position: "relative",
-            zIndex: 2,
           }}
         >
           Welcome to ParCost Inventory!
@@ -107,8 +72,6 @@ export default function Home({ onNavigate }) {
             lineHeight: 1.6,
             maxWidth: 700,
             margin: "0 auto",
-            position: "relative",
-            zIndex: 2,
           }}
         >
           Your comprehensive solution for restaurant inventory management
@@ -282,36 +245,62 @@ export default function Home({ onNavigate }) {
               marginBottom: 20,
             }}
           >
-            <strong style={{ color: BRAND_BLUE }}>Stay tuned!</strong> ParCost Inventory
-            is being built to streamline your restaurant's inventory management
-            with powerful features and an intuitive interface.
+            <strong style={{ color: BRAND_BLUE }}>Ready to get started?</strong> Create your account
+            and start managing your restaurant's inventory with powerful features and an intuitive interface.
           </p>
           {onNavigate && (
-            <button
-              onClick={() => onNavigate("auth")}
-              style={{
-                background: BRAND_BLUE,
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-                padding: "14px 32px",
-                fontSize: "1.1rem",
-                fontWeight: 700,
-                cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(0, 28, 255, 0.3)",
-                transition: "transform 0.2s, box-shadow 0.2s",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = "translateY(-2px)";
-                e.target.style.boxShadow = "0 6px 16px rgba(0, 28, 255, 0.4)";
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "0 4px 12px rgba(0, 28, 255, 0.3)";
-              }}
-            >
-              Get Started
-            </button>
+            <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+              <button
+                onClick={() => onNavigate("signin")}
+                style={{
+                  background: BRAND_BLUE,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "14px 32px",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 12px rgba(0, 28, 255, 0.3)",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow = "0 6px 16px rgba(0, 28, 255, 0.4)";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "0 4px 12px rgba(0, 28, 255, 0.3)";
+                }}
+              >
+                Get Started
+              </button>
+              <button
+                onClick={() => onNavigate("demo")}
+                style={{
+                  background: BRAND_GREEN,
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "14px 32px",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  boxShadow: "0 4px 12px rgba(39, 168, 68, 0.3)",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = "translateY(-2px)";
+                  e.target.style.boxShadow = "0 6px 16px rgba(39, 168, 68, 0.4)";
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = "translateY(0)";
+                  e.target.style.boxShadow = "0 4px 12px rgba(39, 168, 68, 0.3)";
+                }}
+              >
+                Try Demo
+              </button>
+            </div>
           )}
         </div>
       </div>
