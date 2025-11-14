@@ -10,7 +10,17 @@ console.log('🔧 Creating Supabase client with:', {
   keyPrefix: supabaseKey.substring(0, 20) + '...'
 });
 
-// Create client with minimal configuration
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Create client with explicit safe configuration
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false, // Disable automatic detection
+    flowType: 'pkce' // Use PKCE flow which is more reliable
+  },
+  global: {
+    headers: {}  // Empty headers - let Supabase set defaults
+  }
+});
 
-console.log('✅ Supabase client created:', supabase);
+console.log('✅ Supabase client created');
