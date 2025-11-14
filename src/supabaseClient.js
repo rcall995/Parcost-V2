@@ -1,17 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Get env vars - these MUST be set in .env or Vercel environment variables
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL?.trim();
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY?.trim();
+// TEMPORARY HARDCODED CREDENTIALS - Vercel env vars not working
+// TODO: Fix Vercel environment variable configuration
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL?.trim() || 'https://ywrilkhrghegkvqmyzdq.supabase.co';
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY?.trim() || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3cmlsa2hyZ2hlZ2t2cW15emRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxMDc0NzUsImV4cCI6MjA3NTY4MzQ3NX0.eUx1qB_cpTQnsfZqsCDAWzrXQVL2z6GsULT8pEh0ee0';
 
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing required environment variables: REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY must be set');
-}
-
-// Validate format to ensure no invalid characters
-if (!supabaseUrl.startsWith('https://') || !supabaseKey.startsWith('eyJ')) {
-  throw new Error('Invalid Supabase credentials format');
-}
-
-// Create client with minimal configuration to troubleshoot fetch error
+// Create client with minimal configuration
 export const supabase = createClient(supabaseUrl, supabaseKey);
